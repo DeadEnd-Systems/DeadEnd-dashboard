@@ -1,0 +1,379 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DeadEnd Guard Pro - Dashboard</title>
+    <!-- Tailwind CSS for Layout -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Telegram Web App Script -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            /* Default Cyber Blue */
+            --accent-color: #00f3ff;
+            --bg-color: #0a0f16;
+            --panel-bg: #121a25;
+            --text-main: #e2e8f0;
+            --text-muted: #8493a5;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        h1, h2, h3, .cyber-font {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Dynamic Text Glow */
+        .neon-text {
+            color: var(--accent-color);
+            text-shadow: 0 0 8px var(--accent-color);
+            transition: color 0.3s, text-shadow 0.3s;
+        }
+
+        /* Premium Container Style */
+        .panel {
+            background-color: var(--panel-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Color Picker Styling */
+        .color-picker-container {
+            position: relative;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--text-muted);
+            box-shadow: 0 0 10px var(--accent-color);
+            transition: box-shadow 0.3s;
+        }
+        
+        input[type="color"] {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        /* Custom Toggle Switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: var(--accent-color);
+        }
+        
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-color), inset 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+
+        .toggle-checkbox:checked + .toggle-label:after {
+            transform: translateX(100%);
+            border-color: white;
+        }
+
+        .toggle-label {
+            width: 50px;
+            height: 26px;
+            background-color: #2a3441;
+            border-radius: 9999px;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .toggle-label:after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 22px;
+            height: 22px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Glowing Button */
+        .glow-btn {
+            background-color: transparent;
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(var(--accent-color-rgb), 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .glow-btn:hover, .glow-btn:active {
+            background-color: var(--accent-color);
+            color: #000;
+            box-shadow: 0 0 20px var(--accent-color);
+        }
+
+        /* Toast Notification */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: var(--panel-bg);
+            color: var(--accent-color);
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 50;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            border: 1px solid var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-color);
+            opacity: 0;
+            transition: opacity 0.5s, bottom 0.5s, visibility 0.5s;
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .setting-row:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 min-h-screen flex flex-col items-center">
+
+    <!-- Main Container for Mobile/Telegram App -->
+    <div class="w-full max-w-md w-full">
+        
+        <!-- Header Section -->
+        <header class="flex justify-between items-center mb-8 mt-2">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-shield-halved text-3xl neon-text"></i>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wider">DEADEND <span class="neon-text">GUARD</span></h1>
+                    <p class="text-xs text-[var(--text-muted)]">Control Panel v8.0</p>
+                </div>
+            </div>
+            
+            <!-- Color Picker -->
+            <div class="flex flex-col items-center">
+                <div class="color-picker-container" id="colorPickerContainer">
+                    <input type="color" id="themeColor" value="#00f3ff">
+                </div>
+                <span class="text-[10px] text-[var(--text-muted)] mt-1">Theme</span>
+            </div>
+        </header>
+
+        <!-- Settings Container -->
+        <main class="panel p-5 mb-6">
+            <h2 class="text-sm text-[var(--text-muted)] uppercase tracking-widest mb-4 cyber-font">Security Modules</h2>
+
+            <!-- 1. Anti-Spam Strict Mode -->
+            <div class="setting-row">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-black/40 flex justify-center items-center neon-text text-sm border border-white/5">
+                        <i class="fa-solid fa-link-slash"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium text-sm">Anti-Spam Strict Mode</div>
+                        <div class="text-[10px] text-[var(--text-muted)]">Block all user links</div>
+                    </div>
+                </div>
+                <div>
+                    <input type="checkbox" id="anti_spam" class="hidden toggle-checkbox" checked>
+                    <label for="anti_spam" class="toggle-label block"></label>
+                </div>
+            </div>
+
+            <!-- 2. Master Media Wipe -->
+            <div class="setting-row">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-black/40 flex justify-center items-center text-red-500 text-sm border border-white/5">
+                        <i class="fa-solid fa-fire-flame-curved"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium text-sm">Master Media Wipe</div>
+                        <div class="text-[10px] text-[var(--text-muted)]">Delete ALL group media</div>
+                    </div>
+                </div>
+                <div>
+                    <input type="checkbox" id="master_media" class="hidden toggle-checkbox">
+                    <label for="master_media" class="toggle-label block"></label>
+                </div>
+            </div>
+
+            <!-- 3. 10-Min Chat Bomb -->
+            <div class="setting-row">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-black/40 flex justify-center items-center text-orange-400 text-sm border border-white/5">
+                        <i class="fa-solid fa-bomb"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium text-sm">10-Min Chat Bomb</div>
+                        <div class="text-[10px] text-[var(--text-muted)]">Auto-delete messages after 10m</div>
+                    </div>
+                </div>
+                <div>
+                    <input type="checkbox" id="chat_bomb" class="hidden toggle-checkbox">
+                    <label for="chat_bomb" class="toggle-label block"></label>
+                </div>
+            </div>
+
+            <h2 class="text-sm text-[var(--text-muted)] uppercase tracking-widest mb-2 mt-6 cyber-font">Granular Filters</h2>
+
+            <!-- 4. Images Blocker -->
+            <div class="setting-row">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-black/40 flex justify-center items-center text-blue-300 text-sm border border-white/5">
+                        <i class="fa-regular fa-image"></i>
+                    </div>
+                    <div class="font-medium text-sm">Images Blocker</div>
+                </div>
+                <div>
+                    <input type="checkbox" id="block_img" class="hidden toggle-checkbox">
+                    <label for="block_img" class="toggle-label block"></label>
+                </div>
+            </div>
+
+            <!-- 5. Videos Blocker -->
+            <div class="setting-row">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-black/40 flex justify-center items-center text-purple-400 text-sm border border-white/5">
+                        <i class="fa-solid fa-video"></i>
+                    </div>
+                    <div class="font-medium text-sm">Videos Blocker</div>
+                </div>
+                <div>
+                    <input type="checkbox" id="block_vid" class="hidden toggle-checkbox">
+                    <label for="block_vid" class="toggle-label block"></label>
+                </div>
+            </div>
+
+            <!-- 6. Stickers Blocker -->
+            <div class="setting-row">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-black/40 flex justify-center items-center text-yellow-400 text-sm border border-white/5">
+                        <i class="fa-regular fa-face-smile"></i>
+                    </div>
+                    <div class="font-medium text-sm">Stickers Blocker</div>
+                </div>
+                <div>
+                    <input type="checkbox" id="block_stk" class="hidden toggle-checkbox">
+                    <label for="block_stk" class="toggle-label block"></label>
+                </div>
+            </div>
+
+            <!-- 7. Animations/GIFs Blocker -->
+            <div class="setting-row">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-black/40 flex justify-center items-center text-pink-400 text-sm border border-white/5">
+                        <i class="fa-solid fa-film"></i>
+                    </div>
+                    <div class="font-medium text-sm">Animations/GIFs Blocker</div>
+                </div>
+                <div>
+                    <input type="checkbox" id="block_ani" class="hidden toggle-checkbox">
+                    <label for="block_ani" class="toggle-label block"></label>
+                </div>
+            </div>
+        </main>
+
+        <!-- Save Button -->
+        <button id="saveBtn" class="w-full py-4 rounded-xl cyber-font font-bold text-lg tracking-widest glow-btn">
+            <i class="fa-solid fa-microchip mr-2"></i> DEPLOY SETTINGS
+        </button>
+
+        <!-- Toast Notification -->
+        <div id="toast">
+            <i class="fa-solid fa-circle-check mr-2"></i>
+            <span class="font-medium">Settings Synced Successfully!</span>
+        </div>
+
+    </div>
+
+    <!-- Logic Script -->
+    <script>
+        // Telegram Web App Initialization
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Expands the mini app to full height
+
+        // Elements
+        const colorPicker = document.getElementById('themeColor');
+        const colorContainer = document.getElementById('colorPickerContainer');
+        const saveBtn = document.getElementById('saveBtn');
+        const toast = document.getElementById('toast');
+
+        // Hex to RGB converter for softer inset shadows
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '0, 243, 255';
+        }
+
+        // Change Theme Color Logic
+        colorPicker.addEventListener('input', (e) => {
+            const newColor = e.target.value;
+            // Update CSS Variable
+            document.documentElement.style.setProperty('--accent-color', newColor);
+            
+            // Update border color of the picker container
+            colorContainer.style.boxShadow = `0 0 10px ${newColor}`;
+        });
+
+        // Save Data Logic
+        saveBtn.addEventListener('click', () => {
+            // Add click effect
+            saveBtn.style.transform = 'scale(0.98)';
+            setTimeout(() => saveBtn.style.transform = 'scale(1)', 150);
+
+            // Collect all data
+            const settings = {
+                anti_spam: document.getElementById('anti_spam').checked,
+                master_media: document.getElementById('master_media').checked,
+                chat_bomb: document.getElementById('chat_bomb').checked,
+                block_img: document.getElementById('block_img').checked,
+                block_vid: document.getElementById('block_vid').checked,
+                block_stk: document.getElementById('block_stk').checked,
+                block_ani: document.getElementById('block_ani').checked,
+                theme_color: colorPicker.value
+            };
+
+            // Show Toast Notification
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+
+            // If running inside Telegram, send data back to the bot
+            if (tg.initDataUnsafe && Object.keys(tg.initDataUnsafe).length > 0) {
+                tg.sendData(JSON.stringify(settings));
+            } else {
+                console.log("Mock Saving (Outside Telegram):", settings);
+            }
+        });
+    </script>
+</body>
+</html>
+```
