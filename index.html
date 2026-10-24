@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DeadEnd Dashboard</title>
+    <title>DeadEnd Guard Dashboard</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --theme-color: #00f3ff; /* Default Cyber Blue */
+            --theme-color: #00f3ff;
             --bg-color: #0a0a0f;
             --panel-bg: #151821;
             --text-main: #ffffff;
@@ -17,42 +17,65 @@
             margin: 0; padding: 0;
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow-x: hidden;
         }
         .header {
-            text-align: center; padding: 20px;
+            text-align: center; padding: 18px;
             border-bottom: 2px solid var(--theme-color);
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.25);
         }
-        .header h1 { margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--theme-color); }
-        .color-picker { margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 10px; }
-        .color-picker input[type="color"] { border: none; width: 30px; height: 30px; border-radius: 5px; cursor: pointer; background: none; }
-        
-        .container { padding: 20px; }
+        .header h1 {
+            margin: 0; font-size: 22px; text-transform: uppercase;
+            letter-spacing: 2px; text-shadow: 0 0 10px var(--theme-color);
+        }
+        .color-picker-box {
+            margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 8px;
+        }
+        .color-picker-box span { font-size: 13px; color: var(--text-muted); }
+        .color-picker-box input[type="color"] {
+            border: none; width: 28px; height: 28px; border-radius: 4px; cursor: pointer; background: transparent;
+        }
+
+        .container { padding: 16px; }
+
+        .group-selector-box { margin-bottom: 18px; }
+        .group-selector-box label {
+            display: block; font-size: 13px; font-weight: bold; margin-bottom: 6px;
+            color: var(--theme-color); text-transform: uppercase; letter-spacing: 1px;
+        }
+        .group-selector-box select {
+            width: 100%; padding: 12px; background: var(--panel-bg); color: var(--theme-color);
+            border: 1px solid var(--theme-color); border-radius: 8px; font-size: 15px; font-weight: bold;
+            outline: none; box-shadow: 0 0 8px rgba(0, 243, 255, 0.15); box-sizing: border-box;
+        }
+
         .setting-item {
             display: flex; justify-content: space-between; align-items: center;
-            background-color: var(--panel-bg);
-            padding: 15px; margin-bottom: 12px;
+            background-color: var(--panel-bg); padding: 14px; margin-bottom: 10px;
             border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);
         }
-        .setting-info h3 { margin: 0 0 5px 0; font-size: 16px; }
-        .setting-info p { margin: 0; font-size: 12px; color: var(--text-muted); }
-        
-        /* Neon Switch CSS */
-        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .setting-info h3 { margin: 0 0 4px 0; font-size: 15px; }
+        .setting-info p { margin: 0; font-size: 11px; color: var(--text-muted); }
+
+        .switch { position: relative; display: inline-block; width: 48px; height: 26px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #2b2e3a; transition: .3s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px;
+            background-color: #ffffff; transition: .3s; border-radius: 50%;
+        }
         input:checked + .slider { background-color: var(--theme-color); box-shadow: 0 0 12px var(--theme-color); }
-        input:checked + .slider:before { transform: translateX(24px); }
-        
+        input:checked + .slider:before { transform: translateX(22px); }
+
         .btn-deploy {
-            display: block; width: 100%; padding: 15px; margin-top: 20px;
-            background-color: var(--theme-color); color: #000;
-            border: none; border-radius: 8px;
-            font-size: 18px; font-weight: bold; text-transform: uppercase;
-            cursor: pointer; box-shadow: 0 0 15px var(--theme-color); transition: 0.3s;
+            display: block; width: 100%; padding: 15px; margin-top: 18px;
+            background-color: var(--theme-color); color: #000; border: none; border-radius: 8px;
+            font-size: 16px; font-weight: bold; text-transform: uppercase; cursor: pointer;
+            box-shadow: 0 0 15px var(--theme-color); transition: 0.2s;
         }
         .btn-deploy:active { transform: scale(0.98); }
     </style>
@@ -61,14 +84,20 @@
 
     <div class="header">
         <h1>DeadEnd Guard</h1>
-        <div class="color-picker">
-            <span style="font-size: 14px; color: var(--text-muted);">Theme Color:</span>
+        <div class="color-picker-box">
+            <span>Theme:</span>
             <input type="color" id="themeColor" value="#00f3ff">
         </div>
     </div>
 
     <div class="container">
-        <!-- Switches -->
+        <div class="group-selector-box">
+            <label for="target_group">Select Community / Group:</label>
+            <select id="target_group">
+                <option value="none">⏳ Loading Groups...</option>
+            </select>
+        </div>
+
         <div class="setting-item">
             <div class="setting-info"><h3>Anti-Spam Strict</h3><p>Block all links for normal users</p></div>
             <label class="switch"><input type="checkbox" id="anti_spam" checked><span class="slider"></span></label>
@@ -82,19 +111,19 @@
             <label class="switch"><input type="checkbox" id="chat_bomb"><span class="slider"></span></label>
         </div>
         <div class="setting-item">
-            <div class="setting-info"><h3>Block Images</h3><p>Delete all photo messages</p></div>
+            <div class="setting-info"><h3>Block Images</h3><p>Delete photo messages</p></div>
             <label class="switch"><input type="checkbox" id="block_img"><span class="slider"></span></label>
         </div>
         <div class="setting-item">
-            <div class="setting-info"><h3>Block Videos</h3><p>Delete all video messages</p></div>
+            <div class="setting-info"><h3>Block Videos</h3><p>Delete video messages</p></div>
             <label class="switch"><input type="checkbox" id="block_vid"><span class="slider"></span></label>
         </div>
         <div class="setting-item">
-            <div class="setting-info"><h3>Block Stickers</h3><p>Delete all stickers</p></div>
+            <div class="setting-info"><h3>Block Stickers</h3><p>Delete sticker messages</p></div>
             <label class="switch"><input type="checkbox" id="block_stk"><span class="slider"></span></label>
         </div>
         <div class="setting-item">
-            <div class="setting-info"><h3>Block Animations</h3><p>Delete all GIFs/Animations</p></div>
+            <div class="setting-info"><h3>Block Animations</h3><p>Delete GIF animations</p></div>
             <label class="switch"><input type="checkbox" id="block_ani"><span class="slider"></span></label>
         </div>
 
@@ -103,17 +132,48 @@
 
     <script>
         let tg = window.Telegram.WebApp;
-        tg.expand(); // Open full screen
-        
-        // Custom Color Change Logic
-        const colorPicker = document.getElementById('themeColor');
-        colorPicker.addEventListener('input', (e) => {
+        tg.expand();
+
+        document.getElementById('themeColor').addEventListener('input', (e) => {
             document.documentElement.style.setProperty('--theme-color', e.target.value);
         });
 
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const gData = urlParams.get('g');
+            const select = document.getElementById('target_group');
+            select.innerHTML = "";
+
+            if (gData && gData.trim() !== "") {
+                const groups = gData.split('~');
+                groups.forEach(g => {
+                    const parts = g.split('|');
+                    if (parts.length === 2) {
+                        let opt = document.createElement('option');
+                        opt.value = parts[0];
+                        opt.textContent = "📍 " + parts[1];
+                        select.appendChild(opt);
+                    }
+                });
+            }
+
+            if (select.children.length === 0) {
+                let opt = document.createElement('option');
+                opt.value = "none";
+                opt.textContent = "⚠️ No Groups Found!";
+                select.appendChild(opt);
+            }
+        };
+
         function deploySettings() {
-            // Data Collect
+            const selectedGroup = document.getElementById('target_group').value;
+            if (selectedGroup === "none") {
+                alert("Please select a group first!");
+                return;
+            }
+
             const data = {
+                target_group: selectedGroup,
                 anti_spam: document.getElementById('anti_spam').checked,
                 master_media: document.getElementById('master_media').checked,
                 chat_bomb: document.getElementById('chat_bomb').checked,
@@ -122,8 +182,7 @@
                 block_stk: document.getElementById('block_stk').checked,
                 block_ani: document.getElementById('block_ani').checked
             };
-            
-            // Send data to Telegram Bot
+
             tg.sendData(JSON.stringify(data));
             tg.close();
         }
